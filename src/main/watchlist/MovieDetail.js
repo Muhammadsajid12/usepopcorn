@@ -2,8 +2,9 @@ import { ToastContainer, toast } from "react-toastify";
 import StarRating from "../../components/StarRating";
 import Loader from "../helper/Loader";
 import { ErrorMessage } from "../movielist/TemMovieList";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useKey } from "../../customHooks/useKey";
 const KEY = "f0a40cc3";
 
 export default function MovieDetail({
@@ -16,8 +17,14 @@ export default function MovieDetail({
   const [movie, setMovie] = useState({});
   const [error, setError] = useState("");
   const [onStarRating, setOnStarRating] = useState();
+  const RefCount = useRef(0);
+
   const navigate = useNavigate(); // react Route hook..
   // console.log(onStarRating, "onStarRating");
+  useEffect(() => {
+    if (onStarRating) RefCount.current++;
+  }, [onStarRating]);
+
   // Destucture the object...
   const {
     Title: title,
@@ -52,7 +59,10 @@ export default function MovieDetail({
 
     getMovieDetail();
   }, [selectedMovieId]);
-  // This is useEffect run for set title and unset the title...
+  // eslint-disable
+  // if (imdbRating > 8)  const [isTop, setIsTop] = useState("");
+
+  // This is useEffect run for set title and unset the title on browser Tab...
   useEffect(() => {
     document.title = `${isLoading ? "loading" : title}`;
     // This is useEffect cleanup fn called when component is unmounte
@@ -60,33 +70,21 @@ export default function MovieDetail({
       document.title = "usePopCorn";
     };
   }, [isLoading, title]);
-  // This effect for escape
-  useEffect(() => {
-    function callBack(event) {
-      if (event.code === "Escape") {
-        backHandler();
-        console.log("Closing");
-      }
-    }
-
-    document.addEventListener("keydown", callBack);
-
-    return function () {
-      document.removeEventListener("keydown", callBack);
-    };
-  }, [backHandler]);
+  // This is the custom hook to go back...
+  useKey("Escape", backHandler);
 
   // Check This movie is already in movie list
   const alreadyExist = watched
-    .map((movie) => movie.imdbID)
+    ?.map((movie) => movie?.imdbID)
     .includes(selectedMovieId);
 
   // get the rating of this movie
-  const movieRating = watched.find(
-    (movie) => movie.imdbID === selectedMovieId
+  const movieRating = watched?.find(
+    (movie) => movie?.imdbID === selectedMovieId
   )?.userRating;
   // Add Movie Handler
   const notify = () => toast("Movie added Successfully!");
+
   function handeledAdd() {
     notify();
     const newMovie = {
@@ -97,7 +95,9 @@ export default function MovieDetail({
       userRating: onStarRating,
       imdbRating: Number(imdbRating),
       runTime: Number(runTime.split(" ").at(0)),
+      decissionsCount: RefCount.current,
     };
+
     addWatchHandler(newMovie);
   }
 
@@ -140,7 +140,7 @@ export default function MovieDetail({
                       className="btn-add"
                       onClick={() => {
                         handeledAdd();
-                        backHandler();
+                        // backHandler();
                       }}
                     >
                       +Add the Rating

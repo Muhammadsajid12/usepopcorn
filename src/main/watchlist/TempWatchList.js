@@ -5,20 +5,32 @@ import MovieDetail from "../watchlist/MovieDetail";
 import "react-toastify/dist/ReactToastify.css";
 import { Summary } from "./Summary";
 import Movies from "./Movie";
+import { useLocalStorageState } from "../../customHooks/useLocalStorageState";
 
 // CommponentStart...
 function TempWatchList({ selectedMovieId, backHandler }) {
-  const [watched, setWatched] = useState([]);
+  // Custom Hooks that initialize the data of the application.
+  const [watched, setWatched] = useLocalStorageState([], "");
   const [isOpen2, setIsOpen2] = useState(true);
   // const [selectedMovie, setselectedMovie] = useState();
 
-  function movieWatchedHandler(movie) {
-    setWatched((movies) => [...movies, movie]);
+  function movieWatchedHandler(selectedMovie) {
+    setWatched((movie) => {
+      return [...movie, selectedMovie];
+    });
+
+    // Here setting the new Added movie...
+    localStorage.setItem(
+      "watchMovies",
+      JSON.stringify([...watched, selectedMovie])
+    );
   }
 
   const deleteWatchMovie = (movieID) => {
     // Use the filter method to create a new array without the movie with the specified ID
-    setWatched((movies) => movies.filter((movie) => movie.imdbID !== movieID));
+    setWatched((movies) =>
+      movies?.filter((movie) => movie?.imdbID !== movieID)
+    );
   };
 
   return (
@@ -41,7 +53,7 @@ function TempWatchList({ selectedMovieId, backHandler }) {
             </div>
 
             <ul className="list">
-              {watched.map((movie, i) => (
+              {watched?.map((movie, i) => (
                 <Movies movie={movie} key={i} onDelete={deleteWatchMovie} />
               ))}
             </ul>

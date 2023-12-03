@@ -1,22 +1,22 @@
 export default function Movies({ movie, onDelete }) {
   return (
-    <li key={movie.imdbID}>
-      <img src={movie.poster} alt={`${movie.title} poster`} />
-      <h3>{movie.title}</h3>
+    <li key={movie?.imdbID}>
+      <img src={movie?.poster} alt={`${movie?.title} poster`} />
+      <h3>{movie?.title}</h3>
       <div>
         <p>
           <span>⭐️</span>
-          <span>{movie.imdbRating}</span>
+          <span>{movie?.imdbRating}</span>
         </p>
         <p>
           <span>🌟</span>
-          <span>{movie.userRating}</span>
+          <span>{movie?.userRating}</span>
         </p>
         <p>
           <span>⏳</span>
-          <span>{movie.runTime} min</span>
+          <span>{movie?.runTime} min</span>
         </p>
-        <button className="btn-delete" onClick={() => onDelete(movie.imdbID)}>
+        <button className="btn-delete" onClick={() => onDelete(movie?.imdbID)}>
           X
         </button>
       </div>
